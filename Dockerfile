@@ -18,17 +18,23 @@ USER node
 ENV HOME /home/node
 WORKDIR $HOME
 
-ENV NODE_VERSION v6.12.0
+ENV NODE_VERSION v6.12.2
 ENV NVM_DIR $HOME/.nvm
-
-RUN env; mkdir -p ${NVM_DIR}
-COPY ./nvm.sh .
+ENV YARN_DIR $HOME/.yarn
 
 RUN set -ex; \
-  [ -s "${HOME}/nvm.sh" ] && . "${HOME}/nvm.sh"; \
-  nvm install --lts=boron
+  env; \
+  mkdir -p ${NVM_DIR}
+
+COPY ./nvm.sh .
+COPY ./install-yarn.sh .
+
+RUN [ -s "${HOME}/nvm.sh" ] && . "${HOME}/nvm.sh"; \
+  nvm install --lts=boron; \
+  . "${HOME}/install-yarn.sh"
 
 ENV NVM_BIN ${NVM_DIR}/versions/node/${NODE_VERSION}/bin
-ENV PATH ${NVM_BIN}:${PATH}
+ENV YARN_BIN ${YARN_DIR}/bin
+ENV PATH ${NVM_BIN}:${YARN_BIN}:${PATH}
 
 CMD ["bash"]
